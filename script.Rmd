@@ -585,7 +585,8 @@ markerstotransform <- panel_B$fcs_colname[c(7:29,31:42)]
 ```{r Transforming data with FlowVS package B, eval=FALSE }
 fcs_data_small <- Downsampling_FlowSet(x = fcs_data,
                                       samplesize = 2000) 
-      #samplesize is the number of cells included, you can include more cells.
+      # samplesize is the number of cells included,
+      # you can include more cells.
 
 cofactors <- estParamFlowVS(fcs_data_small,
                             channels = markerstotransform)
