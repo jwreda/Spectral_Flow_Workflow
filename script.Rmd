@@ -575,9 +575,11 @@ marker_class <- factor(marker_class,
 antigen <- pData(parameters(fcs_data[[1]]))$desc
 
 panel_B <- data.frame(fcs_colname, antigen, marker_class, row.names = NULL)
-write.xlsx(panel_B, file="panel_B.xlsx", sheetName="Panel_B")
+write.xlsx(panel_B,
+          file = "panel_B.xlsx",
+          sheetName = "Panel_B") #excel file
 
-markerstotransform <- panel_B$fcs_colname[c(7:29,31:42)]
+markerstotransform <- panel_B$fcs_colname[c(7:29, 31:42)]
 ```
 
 ##### Transforming your data with the FlowVS package
@@ -618,8 +620,11 @@ outdir <- file.path(getwd(), "Transformed FCS files 2")
 filenames <- paste("TF_",fcs_data@phenoData@data$name)
 write.flowSet(fcs_transform, outdir = outdir, filename = filenames)
 
-fcs.dir <- file.path(getwd(), "Transformed FCS files 2")
-fcs_transform <- read.flowSet(path=fcs.dir, pattern="*.fcs", transformation = FALSE, truncate_max_range = FALSE)
+fcs_dir <- file.path(getwd(), "Transformed FCS files 2")
+fcs_transform <- read.flowSet(path = fcs_dir,
+                              pattern = "*.fcs",
+                              transformation = FALSE,
+                              truncate_max_range = FALSE)
 
 ```
 To evaluate the data transformation, you can visualize density plots of markers with the FlowViz package.
@@ -636,9 +641,23 @@ Either flowAI or peacoQC package can be used to clean flow cytometry data. For C
 ```{r PeacoQC-1}
 ff <- fcs_transform[[1]]
 
-peacoqc_res <- PeacoQC(ff=ff, channels=markerstotransform, determine_good_cells = "all", save_fcs = FALSE, plot=TRUE, output_directory = "PeacoQCresults", IT_limit = 0.65, MAD=8)
+peacoqc_res <- PeacoQC(ff = ff,
+                      channels = markerstotransform,
+                      determine_good_cells = "all",
+                      save_fcs = FALSE,
+                      plot = TRUE,
+                      output_directory = "PeacoQCresults",
+                      IT_limit = 0.65,
+                      MAD = 8)
 
-peacoqc_res <- PeacoQC(ff=ff, channels=markerstotransform, determine_good_cells = "all", save_fcs = FALSE, plot=TRUE, output_directory = "PeacoQCresults", IT_limit = 0.55, MAD=5)
+peacoqc_res <- PeacoQC(ff = ff,
+                      channels = markerstotransform,
+                      determine_good_cells = "all",
+                      save_fcs = FALSE,
+                      plot = TRUE,
+                      output_directory = "PeacoQCresults",
+                      IT_limit = 0.55,
+                      MAD = 5)
 
 ff <- fcs_transform[[2]]
 peacoqc_res <- PeacoQC(ff=ff, channels=markerstotransform, determine_good_cells = "all", save_fcs = FALSE, plot=TRUE, output_directory = "PeacoQCresults", IT_limit = 0.55, MAD=2)
