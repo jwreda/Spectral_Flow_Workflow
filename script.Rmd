@@ -721,48 +721,80 @@ Subsampling_FlowSet(fcs_transform,0.25, md=md_2) #test and train set are created
 First, we can explore our data with an UMAP. UMAP will show the different populations present in the data and you can plot median expression of markers in the different clusters.
 
 ```{r Exploring data with umap and optimizing parameters B}
-fcs_train <- Downsampling_FlowSet(fcs_train, samplesize =20000) # you can still downsample your training set if needed, but you can include more cells
+fcs_train <- Downsampling_FlowSet(fcs_train, samplesize =20000)
+# you can still downsample your training set
+# if needed, but you can include more cells
 
-sce_train <- prepData(fcs_train, md=md_train, panel= panel_B, FACS = TRUE, transform=FALSE, md_cols =list(file="file_name", id="sample_id", factors=c("batch", "batch_label")))
-assayNames(sce_train)[1] <- "exprs"
+sce_train <- prepData(fcs_train,
+                      md = md_train,
+                      panel = panel_B,
+                      FACS = TRUE,
+                      transform = FALSE,
+                      md_cols = list(file = "file_name",
+                                      id = "sample_id",
+                                      factors = c("batch", "batch_label")))
+assayNames(sce_train)[1] <- "exprs" 
 
 exprs_train <- assay(sce_train, "exprs")
 exprs_train <- t(exprs_train)
-exprs_train <- exprs_train[,c(marker_state)] #markers you want to use for clustering
+exprs_train <- exprs_train[,c(marker_state)] 
+        #markers you want to use for clustering
 
-umap_train <- umap(exprs_train, n_neighbors=5)
-reducedDim(sce_train, "UMAP")<- umap_train
-plotDR(sce_train, "UMAP", color_by="sample_id")
+umap_train <- umap(exprs_train, n_neighbors = 5)
+    #run UMAP with different n_neighbors (this is 5)
+reducedDim(sce_train, "UMAP") <- umap_train
+plotDR(sce_train,
+        "UMAP",
+        color_by = "sample_id")
 
-umap_train <- umap(exprs_train, n_neighbors=15)
-reducedDim(sce_train, "UMAP")<- umap_train
-plotDR(sce_train, "UMAP", color_by="sample_id")
+umap_train <- umap(exprs_train, n_neighbors = 15)
+    #run UMAP with different n_neighbors (this is 15)
+reducedDim(sce_train, "UMAP") <- umap_train
+plotDR(sce_train,
+      "UMAP",
+      color_by = "sample_id")
 
-umap_train <- umap(exprs_train, n_neighbors=50)
-reducedDim(sce_train, "UMAP")<- umap_train
-plotDR(sce_train, "UMAP", color_by="sample_id")
+umap_train <- umap(exprs_train, n_neighbors = 50)
+    #run UMAP with different n_neighbors (this is 50)
+reducedDim(sce_train, "UMAP") <- umap_train
+plotDR(sce_train,
+        "UMAP",
+        color_by = "sample_id")
 
 #if you chose the right n_neighbors, you can also test min_dist
-umap_train <- umap(exprs_train, n_neighbors=15, min_dist = 0.01)
+umap_train <- umap(exprs_train,
+                    n_neighbors = 15,
+                    min_dist = 0.01)
 reducedDim(sce_train, "UMAP")<- umap_train
-plotDR(sce_train, "UMAP", color_by="sample_id")
+plotDR(sce_train,
+        "UMAP",
+        color_by = "sample_id")
 
-umap_train <- umap(exprs_train, n_neighbors=15, min_dist = 0.1)
-reducedDim(sce_train, "UMAP")<- umap_train
-plotDR(sce_train, "UMAP", color_by="sample_id")
+umap_train <- umap(exprs_train,
+                    n_neighbors = 15,
+                    min_dist = 0.1)
+reducedDim(sce_train, "UMAP") <- umap_train
+plotDR(sce_train,
+        "UMAP",
+        color_by = "sample_id")
 
-umap_train <- umap(exprs_train, n_neighbors=15, min_dist = 0.5)
-reducedDim(sce_train, "UMAP")<- umap_train
-plotDR(sce_train, "UMAP", color_by="sample_id")
+umap_train <- umap(exprs_train,
+                    n_neighbors = 15,
+                    min_dist = 0.5)
+reducedDim(sce_train, "UMAP") <- umap_train
+plotDR(sce_train,
+        "UMAP",
+        color_by = "sample_id")
 
-# choose the optimal parameters, to assess robustness of the umap you can vary the seed
+# choose the optimal parameters, to assess
+# robustness of the umap you can vary the seed
 
 set.seed(1234)
 umap_train <- umap(exprs_train, n_neighbors=50, min_dist = 0.01)
 reducedDim(sce_train, "UMAP")<- umap_train
 plotDR(sce_train, "UMAP", color_by="sample_id")
 
-set.seed(7460)
+set.seed(7460) # change seed to see if the UMAP is robust
 umap_train <- umap(exprs_train, n_neighbors=50, min_dist = 0.01, ret_model = TRUE)
 reducedDim(sce_train, "UMAP")<- umap_train$embedding
 plotDR(sce_train, "UMAP", color_by="sample_id")
