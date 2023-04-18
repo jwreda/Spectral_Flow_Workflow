@@ -553,19 +553,25 @@ Files were first pre-gated on living single CD3+CD19-T cells in FlowJo.
 
 ```{r Importing FCS files B}
 
-fcs_dir<- file.path(getwd(), "FCS files 2")
+fcs_dir <- file.path(getwd(), "FCS files 2")
 
-fcs_data <- read.flowSet(path=fcs_dir, pattern="*.fcs", transformation = FALSE, truncate_max_range = FALSE) 
+fcs_data <- read.flowSet(path = fcs_dir,
+                        pattern = "*.fcs",
+                        transformation = FALSE,
+                        truncate_max_range = FALSE
+                        )
 ```
 
 ```{r Panel B}
 fcs_colname <- colnames(fcs_data)
 marker_class <- rep("none", ncol(fcs_data[[1]]))
-marker_state <- c(13,14,16,19,22,36,38,40)
+marker_state <- c(13, 14, 16, 19, 22, 36, 38, 40)
 marker_class[marker_state] <- "state" 
-marker_type <- c(7:12,17,18,20,21,23:35,37,39,41,42)
-marker_class[marker_type] <- "type" 
-marker_class <- factor(marker_class, levels=c("type", "state", "none"))
+marker_type <- c(7:12, 17, 18, 20, 21, 23:35, 37, 39, 41, 42)
+marker_class[marker_type] <- "type"
+marker_class <- factor(marker_class,
+                      levels = c("type", "state", "none"))
+
 antigen <- pData(parameters(fcs_data[[1]]))$desc
 
 panel_B <- data.frame(fcs_colname, antigen, marker_class, row.names = NULL)
