@@ -583,14 +583,23 @@ markerstotransform <- panel_B$fcs_colname[c(7:29,31:42)]
 ##### Transforming your data with the FlowVS package
 
 ```{r Transforming data with FlowVS package B, eval=FALSE }
-fcs_data_small <- Downsampling_FlowSet(x=fcs_data, samplesize = 2000) #samplesize is the number of cells included, you can include more cells.
+fcs_data_small <- Downsampling_FlowSet(x = fcs_data,
+                                      samplesize = 2000) 
+      #samplesize is the number of cells included, you can include more cells.
 
-cofactors <- estParamFlowVS(fcs_data_small, channels=markerstotransform)
+cofactors <- estParamFlowVS(fcs_data_small,
+                            channels = markerstotransform)
 cofactordata <- data.frame(markerstotransform, cofactors)
-write.csv(x=cofactordata, file="cofactordata_B.csv") #csv file
-write.xlsx(x=cofactordata, file="cofactordata_B.xlsx", sheet="cofactordata_B")
+write.csv(x = cofactordata,
+          file = "cofactordata_B.csv") #csv file
 
-fcs_transform <- transFlowVS(fcs_data, channels = markerstotransform, cofactors)
+write.xlsx(x = cofactordata,
+          file = "cofactordata_B.xlsx",
+          sheet = "cofactordata_B") #excel file
+
+fcs_transform <- transFlowVS(fcs_data,
+                            channels = markerstotransform,
+                            cofactors)
 ```
 
 ##### Transforming your data with a fixed cofactor
