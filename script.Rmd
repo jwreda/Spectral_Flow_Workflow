@@ -202,27 +202,34 @@ The next step is to correct batch effects, we will use the Cytonorm package to a
 fcs.dir<- file.path(getwd(), "Transformed FCS files")
 
 files <- list.files(fcs.dir, pattern = "fcs$")
+
 train_files <- file.path(getwd(),
                           "Transformed FCS files",
-                          list.files(fcs.dir, pattern="REU271")
+                          list.files(fcs.dir,
+                                    pattern = "REU271")
                           )
 
 validation_files <- file.path(getwd(),
                             "Transformed FCS files",
-                            list.files(fcs.dir, pattern="REU272")
+                            list.files(fcs.dir,
+                                      pattern = "REU272")
                             )
 fsom <- prepareFlowSOM(train_files,
                         colsToUse = markerstotransform,
                         transformList = NULL,
-                        FlowSOM.params = list(xdim=10,
-                                              ydim=10,
-                                              nClus=20,
-                                              scale=FALSE
+                        FlowSOM.params = list(xdim = 10,
+                                              ydim = 10,
+                                              nClus = 20,
+                                              scale = FALSE
                                               )
                       )
 ``` 
 
 To check if clustering is appropriate:
+
+# the below section performs the following:
+# 1. creates a SOM with 5, 10 and 15 clusters
+# 2. calculates the CV values for each cluster
 
 ```{r batch effect correction-2, eval=FALSE}
 cvs <- testCV(fsom,cluster_values = c(5,10,15))
@@ -245,18 +252,19 @@ fcs.dir<- file.path(getwd(), "Transformed FCS files")
 file_names <- list.files(fcs.dir)
 file_name <- fsApply(fcs_transform, identifier)
 
-file_name == file_names #check if the order of files in the directory and order of files in FlowSet object are matching
+file_name == file_names 
+          #check if the order of files in the
+          # directory and order of files in FlowSet object are matching
 
 md <- data.frame(file_name, md, row.names=NULL)
 
 labels <- c("B", "C", "D", "E", "F", "A")
 
-
 model <- CytoNorm.train(files = train_files,
                         labels = labels,
                         channels = markerstotransform,
                         transformList = NULL,
-                        FlowSOM.params = list(nCells = 6000, 
+                        FlowSOM.params = list(nCells = 6000,
                                               xdim = 10,
                                               ydim = 10,
                                               nClus = 5,
@@ -279,12 +287,17 @@ CytoNorm.normalize(model = model,
                    verbose = TRUE)
 
 fcs.dir<- file.path(getwd(), "Normalized")
-fcs_norm <- read.flowSet(path=fcs.dir, pattern="*.fcs", transformation = FALSE, truncate_max_range = FALSE)
+fcs_norm <- read.flowSet(path=fcs.dir,
+                        pattern="*.fcs",
+                        transformation = FALSE,
+                        truncate_max_range = FALSE)
 
 
-densityplot(~`FJComp-BUV496-A`, fcs_transform[13])#before normalization
+densityplot(~`FJComp-BUV496-A`, fcs_transform[13])
+        #before normalization
 
-densityplot(~`FJComp-BUV496-A`, fcs_norm[3])#after normalization
+densityplot(~`FJComp-BUV496-A`, fcs_norm[3])
+        #after normalization
 ```
 
 At this point, you can take the FCS files from the Transformed files directory or Normalized FCS files directory and load these files into Cytosplore. More information about Cytosplore is available at: [https://www.cytosplore.org/]. You can skip arcsinh transformation for the data in Cytosplore.
@@ -321,21 +334,23 @@ fcs_train <<- fcs_train
 md_train <<- md_train
 
   listy <- 1:length(x)
-  
+
   listz <- subset(listy, !(listy %in% listq))
-  
+
   listz <- sort(listz)
-  
+
   fcs_test <- x[c(listz)]
-  
+
   md_test <- md[c(listz),]
-  
+
 fcs_test <<- fcs_test
 md_test <<- md_test
 
   }
 
-Subsampling_FlowSet(fcs_transform,0.25, md=md) #test and train set are created
+Subsampling_FlowSet(fcs_transform,
+                    0.25,
+                    md = md) #test and train set are created
 ```
 
 ### Exploring data with dimensionality reduction technique UMAP
@@ -350,7 +365,9 @@ assayNames(sce_train)[1] <- "exprs"
 
 exprs_train <- assay(sce_train, "exprs")
 exprs_train <- t(exprs_train)
-exprs_train <- exprs_train[,c(marker_type)] #markers you want to use for clustering, you can also use marker_state or marker_type
+exprs_train <- exprs_train[,c(marker_type)]
+        # markers you want to use for clustering,
+        # you can also use marker_state or marker_type
 
 set.seed(1234)
 
@@ -392,7 +409,11 @@ reducedDim(sce_train, "UMAP")<- umap_train
 plotDR(sce_train, "UMAP", color_by="sample_id")
 
 set.seed(5024)
-umap_train <- umap(exprs_train, n_neighbors=15, min_dist = 0.01, ret_model = TRUE)
+umap_train <- umap(exprs_train,
+                  n_neighbors = 15,
+                  min_dist = 0.01,
+                  ret_model = TRUE)
+
 reducedDim(sce_train, "UMAP")<- umap_train$embedding
 plotDR(sce_train, "UMAP", color_by="sample_id")
 plotDR(sce_train, "UMAP", color_by="CD4")
@@ -402,9 +423,19 @@ plotDR(sce_train, "UMAP", color_by="CD8")
 Now you can add the other samples to the UMAP
 
 ```{r Test UMAP with full dataset A}
-fcs_test <- Downsampling_FlowSet(fcs_test, samplesize =20000)
+fcs_test <- Downsampling_FlowSet(fcs_test, samplesize = 20000)
 
-sce_test <-prepData(fcs_test, md=md_test, panel= panel, FACS = TRUE, transform=FALSE, md_cols =list(file="file_name", id="Sample_ID", factors=c("Group_ID", "batch")))
+sce_test <- prepData(fcs_test,
+                    md = md_test,
+                    panel = panel,
+                    FACS = TRUE,
+                    transform = FALSE,
+                    md_cols = list(file="file_name",
+                                  id="Sample_ID",
+                                  factors=c("Group_ID", "batch")
+                                  )
+                    )
+
 assayNames(sce_test)[1] <- "exprs"
 
 exprs_test <- assay(sce_test, "exprs")
@@ -439,10 +470,24 @@ The CATALYST package provides functions to first cluster flow cytometry data wit
 ```{r Clustering A, message=FALSE}
 set.seed(5024)
 
-sce<- prepData(fcs_transform, md=md, panel= panel, FACS = TRUE, transform=FALSE, md_cols =list(file="file_name", id="Sample_ID", factors=c("Group_ID", "batch")))
+sce<- prepData(fcs_transform,
+              md = md,
+              panel = panel,
+              FACS = TRUE,
+              transform=FALSE,
+              md_cols = list(file = "file_name",
+                            id = "Sample_ID",
+                            factors = c("Group_ID", "batch")
+                            )
+              )
 
 assayNames(sce)[1] <- "exprs"
-sce <- cluster(sce, features="type", maxK=12, seed=5024)
+
+sce <- cluster(sce,
+              features = "type",
+              maxK = 12,
+              seed = 5024
+              )
 ```
 With maxK you specify the number of clusters. The number of clusters to choose can be difficult. First, you need to ask yourself how many clusters would you expect in your data.You can also use the UMAP of the earlier steps to guide you in choice for number of clusters. Plotting median expression of markers in that UMAP can help to see the number of populations you would expect. Vary the number of clusters to find what best fits your data and is biological relevant. 
 
@@ -453,20 +498,50 @@ plotDR(sce, "UMAP", color_by="CD4")
 plotDR(sce, "UMAP", color_by="CD8")
 
 #Plot the number of cells per sample
-Cell_numbers <-plotCounts(sce, prop=FALSE, group_by = "sample_id")#change prop to TRUE to see frequencies
+Cell_numbers <- plotCounts(sce,
+                          prop=FALSE,
+                          group_by = "sample_id")
+                          #change prop to TRUE to see frequencies
+
 print(Cell_numbers)
-Cell_numbers_data <- Cell_numbers[["data"]] #dataframe of number of cells per sample, could be useful if you want to export dataframe and use it to make graphs in other programs, such as Graphpad Prism
 
-#Heatmap of the median expression per marker per metacluster or sample, more information can be found in https://bioconductor.org/packages/release/bioc/html/CATALYST.html 
+Cell_numbers_data <- Cell_numbers[["data"]] 
+# dataframe of number of cells per sample,
+# could be useful if you want to export dataframe
+# and use it to make graphs in other programs,
+# such as Graphpad Prism
 
-plotExprHeatmap(sce, features = "type", by="cluster_id",k="meta12",scale = "last", q = 0, perc=TRUE,bars = FALSE)
 
-plotExprHeatmap(sce, features = "type", by="sample_id",k="meta12",scale = "last", q = 0, perc=TRUE,bars = FALSE) #this plot can also be used to check for batch effects 
+# Heatmap of the median expression
+# per marker per metacluster or sample,
+# more information can be found in
+# https://bioconductor.org/packages/release/bioc/html/CATALYST.html 
+plotExprHeatmap(sce,
+                features = "type",
+                by = "cluster_id",
+                k = "meta12",
+                scale = "last",
+                q = 0,
+                perc = TRUE,
+                bars = FALSE)
 
-Cell_freq_clusters <- plotAbundances(sce, k = "meta12", group_by = "sample_id")
-print(Cell_freq_clusters)
-Cell_freq_clusters_data <- Cell_freq_clusters[["data"]]
-write.xlsx(x=Cell_freq_clusters_data, file="Cellclusterfrequencies.xlsx")
+plotExprHeatmap(sce,
+                features = "type",
+                by = "sample_id",
+                k = "meta12",
+                scale = "last",
+                q = 0,
+                perc = TRUE,
+                bars = FALSE) 
+#this plot can also be used to check for batch effects 
+
+cell_freq_clusters <- plotAbundances(sce,
+                                    k = "meta12",
+                                    group_by = "sample_id")
+print(cell_freq_clusters)
+cell_freq_clusters_data <- cell_freq_clusters[["data"]]
+write.xlsx(x = cell_freq_clusters_data,
+          file = "Cellclusterfrequencies.xlsx")
 
 ```
 
@@ -478,9 +553,9 @@ Files were first pre-gated on living single CD3+CD19-T cells in FlowJo.
 
 ```{r Importing FCS files B}
 
-fcs.dir<- file.path(getwd(), "FCS files 2")
+fcs_dir<- file.path(getwd(), "FCS files 2")
 
-fcs_data <- read.flowSet(path=fcs.dir, pattern="*.fcs", transformation = FALSE, truncate_max_range = FALSE) 
+fcs_data <- read.flowSet(path=fcs_dir, pattern="*.fcs", transformation = FALSE, truncate_max_range = FALSE) 
 ```
 
 ```{r Panel B}
