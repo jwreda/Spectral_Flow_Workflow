@@ -70,16 +70,38 @@ Construct a data frame of your panel:
 ```{r Panel-A}
 
 fcs_colname <- colnames(fcs_data)
-marker_class <- rep("none", ncol(fcs_data[[1]]))
+
+marker_class <- rep("none",
+                    ncol(fcs_data[[1]])
+                    )
+
 marker_state <- 36
-marker_class[marker_state] <- "state" #markers that indicate "state" of a cell, such as PDL1 marker, or use it to indicate markers you won't use for clustering
+marker_class[marker_state] <- "state"
+          # markers that indicate "state" of a cell,
+          # such as PDL1 marker, or use it to 
+          # indicate markers you won't use for clustering
+
 marker_type <- c(8:35,38)
-marker_class[marker_type] <- "type" # markers that indicate surface markers, such as CD3, CD4, or markers that you do want to use for clustering
-marker_class <- factor(marker_class, levels=c("type", "state", "none"))
+marker_class[marker_type] <- "type" 
+          # markers that indicate surface markers,
+          # such as CD3, CD4, or markers that 
+          # you do want to use for clustering
+
+marker_class <- factor(marker_class,
+                      levels = c("type", "state", "none")
+                      )
+
 antigen <- pData(parameters(fcs_data[[1]]))$desc
 
-panel <- data.frame(fcs_colname, antigen, marker_class, row.names = NULL)
-write.xlsx(panel, file="panel_A.xlsx", sheetName="Panel_A")
+panel <- data.frame(fcs_colname,
+                    antigen,
+                    marker_class,
+                    row.names = NULL
+                    )
+write.xlsx(panel,
+          file = "panel_A.xlsx",
+          sheetName = "Panel_A"
+          )
 
 ```
 
@@ -99,21 +121,29 @@ Before calculating cofactors with the FlowVS package, we will downsample our dat
 ##### Transforming your data with the FlowVS package
 
 ```{r Transforming data with FlowVS package A, eval=FALSE }
-Downsampling_FlowSet <- function(x, samplesize , replace=TRUE, prob=NULL){
+Downsampling_FlowSet <- function(x, samplesize, replace = TRUE, prob = NULL) {
   if(missing(samplesize))
     samplesize <- min(flowCore::fsApply(x,nrow))
   flowCore::fsApply(x, function(ff){
-    i <- sample(nrow(ff), size = samplesize, replace=replace, prob)
+    i <- sample(nrow(ff), size = samplesize, replace = replace, prob)
     ff[i,]
   })
 }
 
-fcs_data_small <- Downsampling_FlowSet(x=fcs_data, samplesize = 2000) #samplesize is the number of cells included, you can include more cells.
+fcs_data_small <- Downsampling_FlowSet(x = fcs_data, samplesize = 2000) 
+            #samplesize is the number of cells included, you can include more cells.
 
-cofactors <- estParamFlowVS(fcs_data_small, channels=markerstotransform)
+cofactors <- estParamFlowVS(fcs_data_small, channels = markerstotransform)
 cofactordata <- data.frame(markerstotransform, cofactors)
-write.csv(x=cofactordata, file="cofactordata.csv") #csv file
-write.xlsx(x=cofactordata, file="cofactordata.xlsx", sheet="cofactordata_A")
+
+write.csv(x = cofactordata,
+          file = "cofactordata.csv"
+          ) #csv file
+
+write.xlsx(x = cofactordata,
+          file = "cofactordata.xlsx",
+          sheet = "cofactordata_A"
+          ) #excel file
 
 fcs_transform <- transFlowVS(fcs_data, channels = markerstotransform, cofactors)
 filenames <- sampleNames(fcs_data)
@@ -136,9 +166,12 @@ sampleNames(fcs_transform) <- filenames
 To evaluate the data transformation, you can visualize density plots of markers with the FlowViz package. 
 
 ```{r densityplots A}
-densityplot(~`FJComp-BUV496-A`, fcs_data[[1]]) #density plot before transformation, you can replace `FJComp-BUV496-A` by . to view all markers.
+densityplot(~`FJComp-BUV496-A`, fcs_data[[1]])
+          #density plot before transformation, you can 
+          # replace `FJComp-BUV496-A` by . to view all markers.
 
-densityplot(~`FJComp-BUV496-A`, fcs_transform[[1]]) # density plot after transformation
+densityplot(~`FJComp-BUV496-A`, fcs_transform[[1]])
+          # density plot after transformation
 ``` 
 
 ### Automatic quality control of flow cytometry data 
@@ -146,16 +179,20 @@ Either flowAI or peacoQC package can be used to clean flow cytometry data. For C
 
 No pre-gated Time gate:
 ```{r FlowAI, eval=FALSE}
-fcs_transform <- flow_auto_qc(fcs_transform) 
+fcs_transform <- flow_auto_qc(fcs_transform)
 ```
 
 Pre-gated Time gate:
 ```{r FlowAI not filtering time gate, results='hide', warning=FALSE}
-fcs_transform <- flow_auto_qc(fcs_transform, remove_from = "FS_FM") 
+fcs_transform <- flow_auto_qc(fcs_transform, remove_from = "FS_FM")
 
-outdir <- file.path(getwd(), "Transformed FCS files") 
-filenames <- paste("tf",fcs_data@phenoData@data$name)
-write.flowSet(fcs_transform, outdir = outdir, filename = filenames) #create a new directory with transformed FCS files
+outdir <- file.path(getwd(), "Transformed FCS files")
+filenames <- paste("tf", fcs_data@phenoData@data$name)
+write.flowSet(fcs_transform,
+              outdir = outdir,
+              filename = filenames
+              )
+        #create a new directory with transformed FCS files
 ``` 
 
 ### Batch effects
@@ -165,9 +202,24 @@ The next step is to correct batch effects, we will use the Cytonorm package to a
 fcs.dir<- file.path(getwd(), "Transformed FCS files")
 
 files <- list.files(fcs.dir, pattern = "fcs$")
-train_files <- file.path(getwd(),"Transformed FCS files", list.files(fcs.dir, pattern="REU271"))
-validation_files <- file.path(getwd(), "Transformed FCS files", list.files(fcs.dir, pattern="REU272"))
-fsom <- prepareFlowSOM(train_files, colsToUse = markerstotransform, transformList = NULL, FlowSOM.params = list(xdim=10,ydim=10, nClus=20, scale=FALSE))
+train_files <- file.path(getwd(),
+                          "Transformed FCS files",
+                          list.files(fcs.dir, pattern="REU271")
+                          )
+
+validation_files <- file.path(getwd(),
+                            "Transformed FCS files",
+                            list.files(fcs.dir, pattern="REU272")
+                            )
+fsom <- prepareFlowSOM(train_files,
+                        colsToUse = markerstotransform,
+                        transformList = NULL,
+                        FlowSOM.params = list(xdim=10,
+                                              ydim=10,
+                                              nClus=20,
+                                              scale=FALSE
+                                              )
+                      )
 ``` 
 
 To check if clustering is appropriate:
