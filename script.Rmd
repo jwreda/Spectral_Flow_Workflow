@@ -660,7 +660,14 @@ peacoqc_res <- PeacoQC(ff = ff,
                       MAD = 5)
 
 ff <- fcs_transform[[2]]
-peacoqc_res <- PeacoQC(ff=ff, channels=markerstotransform, determine_good_cells = "all", save_fcs = FALSE, plot=TRUE, output_directory = "PeacoQCresults", IT_limit = 0.55, MAD=2)
+peacoqc_res <- PeacoQC(ff = ff,
+                        channels = markerstotransform,
+                        determine_good_cells = "all",
+                        save_fcs = FALSE,
+                        plot=TRUE,
+                        output_directory = "PeacoQCresults",
+                        IT_limit = 0.55,
+                        MAD=2)
 ```
 
 After choosing the right parameters, you can apply the algorithm to all samples.
