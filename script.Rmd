@@ -78,13 +78,13 @@ marker_class <- rep("none",
 marker_state <- 36
 marker_class[marker_state] <- "state"
           # markers that indicate "state" of a cell,
-          # such as PDL1 marker, or use it to 
+          # such as PDL1 marker, or use it to
           # indicate markers you won't use for clustering
 
-marker_type <- c(8:35,38)
-marker_class[marker_type] <- "type" 
+marker_type <- c(8:35, 38)
+marker_class[marker_type] <- "type"
           # markers that indicate surface markers,
-          # such as CD3, CD4, or markers that 
+          # such as CD3, CD4, or markers that
           # you do want to use for clustering
 
 marker_class <- factor(marker_class,
@@ -125,7 +125,7 @@ Downsampling_FlowSet <- function(x, samplesize, replace = TRUE, prob = NULL) {
   if(missing(samplesize))
     samplesize <- min(flowCore::fsApply(x,nrow))
   flowCore::fsApply(x, function(ff){
-    i <- sample(nrow(ff), size = samplesize, replace = replace, prob)
+    i <- fcs_data(nrow(ff), size = samplesize, replace = replace, prob)
     ff[i,]
   })
 }
@@ -310,7 +310,7 @@ Downsampling_FlowSet <- function(x, samplesize , replace=TRUE, prob=NULL){
   if(missing(samplesize))
     samplesize <- min(flowCore::fsApply(x,nrow))
   flowCore::fsApply(x, function(ff){
-    i <- sample(nrow(ff), size = samplesize, replace=replace, prob)
+    i <- fcs_data(nrow(ff), size = samplesize, replace=replace, prob)
     ff[i,]
   })
 }
@@ -322,7 +322,7 @@ md <- md[c(1:4,10,16),] # samples from batch A
 Subsampling_FlowSet <- function(x, fraction, md){
   b <- round(fraction*length(x), digits=0)
   
-  listq <- sample(x=length(x), b, replace=FALSE)
+  listq <- fcs_data(x=length(x), b, replace=FALSE)
   listq <- sort(listq)
   
   fcs_train<-x[c(listq)]
